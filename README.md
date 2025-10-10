@@ -1,0 +1,157 @@
+# raincloudpy 🌧️☁️
+
+[![PyPI version](https://badge.fury.io/py/raincloudpy.svg)](https://badge.fury.io/py/raincloudpy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+
+Beautiful **raincloud plots** for Python, combining boxplots, half-violin plots, and density-aligned scatter plots to create comprehensive and visually appealing data visualizations.
+
+## What is a Raincloud Plot?
+
+Raincloud plots are a hybrid visualization that combines:
+- 📊 **Box plots** - showing quartiles and outliers
+- 🎻 **Half-violin plots** - displaying the probability density
+- 🔴 **Scatter plots** - showing individual data points aligned by density
+
+This creates a "rain cloud" effect that provides maximum information about your data distribution.
+
+## Example
+![raincloud plot](https://github.com/bsgarcia/raincloudpy/blob/master/examples/example.png)
+
+## Installation
+
+```bash
+pip install raincloudpy
+```
+
+## Quick Start
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from raincloudpy import raincloudplot
+
+# Create sample data
+df = pd.DataFrame({
+    'group': ['A'] * 50 + ['B'] * 50 + ['C'] * 50,
+    'value': np.concatenate([
+        np.random.randn(50) + 2,
+        np.random.randn(50) + 3,
+        np.random.randn(50) + 2.5
+    ])
+})
+
+# Create raincloud plot
+fig, ax = plt.subplots(figsize=(10, 6))
+raincloudplot(data=df, x='group', y='value', palette='Set2', ax=ax)
+plt.title('My First Raincloud Plot')
+plt.show()
+```
+
+## Features
+
+- 🎨 **Customizable colors** - Use any seaborn color palette or custom colors
+- 📏 **Flexible sizing** - Control box width, violin width, and dot sizes
+- 🎯 **Density-aligned scatter** - Points are intelligently positioned based on data density
+- 🔧 **Component control** - Show/hide individual components (box, violin, scatter)
+- 📊 **Works with pandas** - Seamless integration with pandas DataFrames
+- 🎭 **Matplotlib-based** - Fully compatible with matplotlib customization
+
+## Advanced Usage
+
+### Customized Plot
+
+```python
+raincloudplot(
+    data=df, 
+    x='group', 
+    y='value',
+    order=['A', 'B', 'C'],
+    palette=['#FF6B6B', '#4ECDC4', '#45B7D1'],
+    box_width=0.2,
+    violin_width=0.35,
+    dot_size=10,
+    dot_spacing=0.03,
+    y_threshold=0.1,
+    box_kwargs={'linewidth': 3},
+    violin_kwargs={'alpha': 0.3},
+    scatter_kwargs={'alpha': 0.9, 'edgecolor': 'black'}
+)
+```
+
+### Hiding Components
+
+```python
+# Only show violin and scatter
+raincloudplot(
+    data=df, 
+    x='group', 
+    y='value',
+    show_box=False,
+    show_violin=True,
+    show_scatter=True
+)
+```
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `data` | DataFrame | None | Input data (required) |
+| `x` | str | None | Column name for categorical variable |
+| `y` | str | None | Column name for continuous variable |
+| `order` | list | None | Order to plot categorical levels |
+| `palette` | str/list | None | Colors for different groups |
+| `ax` | Axes | None | Matplotlib axes object |
+| `box_width` | float | 0.15 | Width of boxplot boxes |
+| `violin_width` | float | 0.3 | Maximum width of violin plot |
+| `dot_size` | float | 7 | Size of scatter points |
+| `dot_spacing` | float | 0.03 | Horizontal spacing between dots |
+| `y_threshold` | float | None | Threshold for grouping y-values (absolute); 5% when set to None |
+| `n_bins` | int | 40 | Number of bins for density estimation |
+| `box_kwargs` | dict | None | Additional boxplot arguments |
+| `violin_kwargs` | dict | None | Additional violin plot arguments |
+| `scatter_kwargs` | dict | None | Additional scatter plot arguments |
+| `show_box` | bool | True | Whether to show boxplot |
+| `show_violin` | bool | True | Whether to show violin plot |
+| `show_scatter` | bool | True | Whether to show scatter plot |
+| `orient` | str | 'v' | Plot orientation ('v' or 'h') |
+
+## Requirements
+
+- Python >= 3.7
+- numpy >= 1.19.0
+- matplotlib >= 3.3.0
+- scipy >= 1.5.0
+- pandas >= 1.1.0
+- seaborn >= 0.11.0
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use this package in your research, please cite:
+
+```bibtex
+@software{raincloudpy2025,
+  author = {Basile Garcia},
+  title = {raincloudpy: Beautiful raincloud plots for Python},
+  year = {2025},
+  url = {https://github.com/bsgarcia/raincloudpy}
+}
+```
+
+## Acknowledgments
+
+Inspired by the original raincloud plots concept and various implementations in R and Python.
+
+## References
+
+- Allen, M., Poggiali, D., Whitaker, K., Marshall, T. R., & Kievit, R. A. (2019). Raincloud plots: a multi-platform tool for robust data visualization. Wellcome Open Research, 4.
