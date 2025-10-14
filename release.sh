@@ -165,7 +165,7 @@ echo ""
 
 # Check package
 echo -e "${BLUE}Checking package with twine...${NC}"
-twine check dist/*
+python -m twine check dist/*
 echo "  ✓ Package check passed"
 echo ""
 
@@ -174,7 +174,7 @@ echo -e "${BLUE}[7/7] Publishing package...${NC}"
 
 if [ "$TEST_MODE" == "--test" ]; then
     echo -e "${YELLOW}→ Uploading to TestPyPI...${NC}"
-    twine upload --repository testpypi dist/*
+    python -m twine upload --repository testpypi dist/*
     echo ""
     echo -e "${GREEN}✓ Package uploaded to TestPyPI${NC}"
     echo -e "${BLUE}Test installation with:${NC}"
@@ -184,7 +184,7 @@ else
     read -p "Upload to PyPI? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        twine upload dist/*
+        python -m twine upload dist/*
         echo ""
         echo -e "${GREEN}✓ Package uploaded to PyPI${NC}"
     else
