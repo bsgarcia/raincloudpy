@@ -16,7 +16,7 @@ Raincloud plots are a hybrid visualization that combines:
 This creates a "rain cloud" effect that provides maximum information about your data distribution.
 
 ## Example
-![raincloud plot](https://github.com/bsgarcia/raincloudpy/blob/master/examples/example.png)
+![raincloud plot](https://raw.githubusercontent.com/bsgarcia/raincloudpy/refs/heads/master/examples/example.png)
 
 ## Installation
 
@@ -26,11 +26,16 @@ pip install raincloudpy
 
 ## Quick Start
 
+### basic 
 ```python
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from raincloudpy import raincloudplot
+import seaborn as sns
+
+# Set random seed for reproducibility
+np.random.seed(42)
 
 # Create sample data
 df = pd.DataFrame({
@@ -43,43 +48,69 @@ df = pd.DataFrame({
 })
 
 # Create raincloud plot
-fig, ax = plt.subplots(figsize=(10, 6))
-raincloudplot(data=df, x='group', y='value', palette='Set2', ax=ax)
-plt.title('My First Raincloud Plot')
+# fig, ax = plt.subplots(figsize=(10, 6))
+plt.figure(figsize=(10, 6))
+sns.set_context('talk')
+raincloudplot(data=df, x='group', y='value', palette='Set2')
+plt.title('basic raincloud plot example')
+plt.ylabel('value')
+plt.xlabel('group')
+plt.tight_layout()
 plt.show()
 ```
 
-## Features
-
-- 🎨 **Customizable colors** - Use any seaborn color palette or custom colors
-- 📏 **Flexible sizing** - Control box width, violin width, and dot sizes
-- 🎯 **Density-aligned scatter** - Points are intelligently positioned based on data density
-- 🔧 **Component control** - Show/hide individual components (box, violin, scatter)
-- 📊 **Works with pandas** - Seamless integration with pandas DataFrames
-- 🎭 **Matplotlib-based** - Fully compatible with matplotlib customization
-
-## Advanced Usage
-
-### Customized Plot
-
+### advanced
 ```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Create sample data mimicking value comparison
+N = 150
+df_fit = pd.DataFrame({
+    'group': ['group 1'] * N + ['group 2'] * N + ['group 3'] * N,
+    'value': np.concatenate([
+        np.random.normal(loc=300, scale=20, size=N),
+        np.random.normal(loc=250, scale=20, size=N),
+        np.random.normal(loc=200, scale=20, size=N)
+    ])
+})
+
+sns.set_style("ticks")
+sns.set_context("notebook")
+
+# Create customized raincloud plot
+plt.figure(figsize=(6, 5), dpi=300)
 raincloudplot(
-    data=df, 
+    data=df_fit, 
     x='group', 
     y='value',
-    order=['A', 'B', 'C'],
-    palette=['#FF6B6B', '#4ECDC4', '#45B7D1'],
-    box_width=0.2,
-    violin_width=0.35,
+    order=['group 1', 'group 2', 'group 3'],
+    palette=['#3498db', '#e74c3c', '#2ecc71'],
+    box_width=0.14,
+    violin_width=0.4,
     dot_size=10,
-    dot_spacing=0.03,
-    y_threshold=0.1,
+    dot_spacing=0.04,
+    y_threshold=3,
     box_kwargs={'linewidth': 3},
-    violin_kwargs={'alpha': 0.3},
-    scatter_kwargs={'alpha': 0.9, 'edgecolor': 'black'}
+    scatter_kwargs={'alpha': 0.9, 'edgecolor': 'black', 'linewidth': 0.5},
+    violin_kwargs={'alpha': 0.25},
 )
-```
 
+
+plt.title('group comparison using raincloudpy', fontweight='bold')
+plt.ylabel('value')
+plt.xlabel('')
+plt.tight_layout()
+sns.despine(offset=10, trim=True, bottom=True)
+plt.tick_params(axis='x', which='both', bottom=False, top=False)
+plt.show()
+```
 ### Hiding Components
 
 ```python
@@ -93,6 +124,18 @@ raincloudplot(
     show_scatter=True
 )
 ```
+
+## Features
+
+- 🎨 **Customizable colors** - Use any seaborn color palette or custom colors
+- 📏 **Flexible sizing** - Control box width, violin width, and dot sizes
+- 🎯 **Density-aligned scatter** - Points are intelligently positioned based on data density
+- 🔧 **Component control** - Show/hide individual components (box, violin, scatter)
+- 📊 **Works with pandas** - Seamless integration with pandas DataFrames
+- 🎭 **Matplotlib-based** - Fully compatible with matplotlib customization
+
+
+
 
 ## Parameters
 
