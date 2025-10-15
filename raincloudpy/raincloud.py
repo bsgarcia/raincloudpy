@@ -20,6 +20,7 @@ def raincloudplot(
     violin_width: float = 0.3,
     dot_size: float = 7,
     dot_spacing: float = 0.03,
+    box_dots_spacing: float = 0.05,
     y_threshold: Optional[float] = None,
     n_bins: int = 40,
     box_kwargs: Optional[Dict[str, Any]] = None,
@@ -55,6 +56,8 @@ def raincloudplot(
         Size of scatter points.
     dot_spacing : float, default=0.03
         Horizontal spacing between scattered dots.
+    box_dots_spacing : float, default=0.05
+        Gap between the boxplot and the scatter points.
     y_threshold : float, optional
         Threshold for grouping y-values together. If None, computed as 5% of data range.
     n_bins : int, default=40
@@ -174,7 +177,7 @@ def raincloudplot(
         if show_scatter:
             _add_density_scatter(
                 ax, i, y_vals, color, box_width, 
-                dot_spacing, y_threshold, n_bins, **scatter_defaults
+                dot_spacing, box_dots_spacing, y_threshold, n_bins, **scatter_defaults
             )
     
     return ax
@@ -201,11 +204,11 @@ def _add_half_violin(ax, position, y_vals, color, violin_width, **kwargs):
 
 def _add_density_scatter(
     ax, position, y_vals, color, box_width,
-    dot_spacing, y_threshold, n_bins, **kwargs
+    dot_spacing, box_dots_spacing, y_threshold, n_bins, **kwargs
 ):
     """Add density-aligned scatter points."""
     x_coords, y_coords = _compute_scatter_coords(
-        position + box_width/2 + 0.05,
+        position + box_width/2 + box_dots_spacing,
         y_vals,
         dot_spacing,
         y_threshold,
