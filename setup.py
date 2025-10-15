@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
     name="raincloudpy",
-    version="0.4.3",
+    version="0.4.4",
     author="bsgarcia",
     author_email="basilegarcia@gmail.com",
     description="Beautiful raincloud plots for Python",

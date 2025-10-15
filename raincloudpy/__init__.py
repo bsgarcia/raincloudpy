@@ -9,6 +9,6 @@ half-violin plots, and density-aligned scatter plots.
 
 from .raincloud import raincloudplot
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 __author__ = "bsgarcia"
 __all__ = ["raincloudplot"]
