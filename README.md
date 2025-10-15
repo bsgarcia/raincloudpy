@@ -151,6 +151,7 @@ raincloudplot(
 | `violin_width` | float | 0.3 | Maximum width of violin plot |
 | `dot_size` | float | 7 | Size of scatter points |
 | `dot_spacing` | float | 0.03 | Horizontal spacing between dots |
+| `box_dots_spacing` | float | 0.05 | Gap between boxplot and scatter points |
 | `y_threshold` | float | None | Threshold for grouping y-values (absolute); 5% when set to None |
 | `n_bins` | int | 40 | Number of bins for density estimation |
 | `box_kwargs` | dict | None | Additional boxplot arguments |
