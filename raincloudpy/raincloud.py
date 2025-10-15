@@ -21,7 +21,7 @@ def raincloudplot(
     dot_size: float = 7,
     dot_spacing: float = 0.03,
     box_dots_spacing: float = 0.05,
-    y_threshold: Optional[float] = None,
+    y_threshold: Optional[Union[float, str]] = "5%",
     n_bins: int = 40,
     box_kwargs: Optional[Dict[str, Any]] = None,
     violin_kwargs: Optional[Dict[str, Any]] = None,
@@ -58,8 +58,11 @@ def raincloudplot(
         Horizontal spacing between scattered dots.
     box_dots_spacing : float, default=0.05
         Gap between the boxplot and the scatter points.
-    y_threshold : float, optional
-        Threshold for grouping y-values together. If None, computed as 5% of data range.
+    y_threshold : float, str, or None, default="5%"
+        Threshold for grouping y-values together. 
+        - None: stripplot with 3% jitter (random scatter)
+        - str (e.g., "5%"): percentage of data range for grouping
+        - float/int: absolute threshold value for grouping
     n_bins : int, default=40
         Number of bins for density estimation.
     box_kwargs : dict, optional
@@ -222,7 +225,7 @@ def _compute_scatter_coords(
     x_pos: float,
     y_values: np.ndarray,
     dot_spacing: float = 0.03,
-    y_threshold: Optional[float] = None,
+    y_threshold: Optional[Union[float, str]] = "5%",
     n_bins: int = 40
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -233,10 +236,23 @@ def _compute_scatter_coords(
     """
     y_values = np.array(y_values)
     
-    # Compute threshold if not provided
+    # Parse threshold
     if y_threshold is None:
-        y_range_data = y_values.max() - y_values.min()
-        y_threshold = y_range_data * 0.05
+        # Stripplot with 3% jitter - each point gets random x offset
+        jitter_amount = 0.03
+        x_coords = x_pos + np.random.uniform(-jitter_amount, jitter_amount, size=len(y_values))
+        return x_coords, y_values
+    elif isinstance(y_threshold, str):
+        # Percentage string (e.g., "5%")
+        if y_threshold.endswith('%'):
+            percentage = float(y_threshold.rstrip('%')) / 100
+            y_range_data = y_values.max() - y_values.min()
+            y_threshold_value = y_range_data * percentage
+        else:
+            raise ValueError("String threshold must end with '%' (e.g., '5%')")
+    else:
+        # Absolute numeric value
+        y_threshold_value = float(y_threshold)
     
     # Sort and group similar y-values
     sorted_indices = np.argsort(y_values)
@@ -247,7 +263,7 @@ def _compute_scatter_coords(
     
     for i in range(1, len(sorted_y)):
         # Compare to the first value in the current group to ensure total range doesn't exceed threshold
-        if (sorted_y[i] - current_group[0]) <= y_threshold:
+        if (sorted_y[i] - current_group[0]) <= y_threshold_value:
             current_group.append(sorted_y[i])
         else:
             y_groups.append(current_group)

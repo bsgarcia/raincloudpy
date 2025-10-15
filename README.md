@@ -135,8 +135,6 @@ raincloudplot(
 - 🎭 **Matplotlib-based** - Fully compatible with matplotlib customization
 
 
-
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -152,7 +150,7 @@ raincloudplot(
 | `dot_size` | float | 7 | Size of scatter points |
 | `dot_spacing` | float | 0.03 | Horizontal spacing between dots |
 | `box_dots_spacing` | float | 0.05 | Gap between boxplot and scatter points |
-| `y_threshold` | float | None | Threshold for grouping y-values (absolute); 5% when set to None |
+| `y_threshold` | float/str/None | "5%" | Threshold for grouping y-values: None=stripplot (3% jitter), "5%"=percentage, number=absolute |
 | `n_bins` | int | 40 | Number of bins for density estimation |
 | `box_kwargs` | dict | None | Additional boxplot arguments |
 | `violin_kwargs` | dict | None | Additional violin plot arguments |
