@@ -169,25 +169,26 @@ def raincloudplot(
         )
     
     # Add violin and scatter for each group
+    n_groups = len(groups)
     for i, (group_val, color) in enumerate(zip(groups, palette)):
         y_vals = data[data[x] == group_val][y].values
         
         if show_violin:
             _add_half_violin(
-                ax, i, y_vals, color, violin_width, **violin_defaults
+                ax, i, y_vals, color, violin_width, n_groups, **violin_defaults
             )
         
         if show_scatter:
             _add_density_scatter(
                 ax, i, y_vals, color, box_width, 
-                dot_spacing, box_dots_spacing, y_threshold, n_bins, **scatter_defaults
+                dot_spacing, box_dots_spacing, y_threshold, n_bins, n_groups, **scatter_defaults
             )
     
     return ax
 
 
-def _add_half_violin(ax, position, y_vals, color, violin_width, **kwargs):
-    """Add a left-side half violin plot."""
+def _add_half_violin(ax, position, y_vals, color, violin_width, n_groups, **kwargs):
+    """Add a left-side half violin plot (or centered for single group)."""
     kde = gaussian_kde(y_vals, bw_method='scott')
     y_density = np.linspace(y_vals.min(), y_vals.max(), 100)
     density = kde(y_density)
@@ -195,23 +196,40 @@ def _add_half_violin(ax, position, y_vals, color, violin_width, **kwargs):
     # Normalize density to violin_width
     density_normalized = density / density.max() * violin_width
     
-    # Plot left half violin only (negative x direction from center)
-    ax.fill_betweenx(
-        y_density,
-        position - density_normalized,
-        position,
-        color=color,
-        **kwargs
-    )
+    if n_groups == 1:
+        # For single group, center the violin (symmetric)
+        ax.fill_betweenx(
+            y_density,
+            position - density_normalized / 2,
+            position + density_normalized / 2,
+            color=color,
+            **kwargs
+        )
+    else:
+        # Plot left half violin only (negative x direction from center)
+        ax.fill_betweenx(
+            y_density,
+            position - density_normalized,
+            position,
+            color=color,
+            **kwargs
+        )
 
 
 def _add_density_scatter(
     ax, position, y_vals, color, box_width,
-    dot_spacing, box_dots_spacing, y_threshold, n_bins, **kwargs
+    dot_spacing, box_dots_spacing, y_threshold, n_bins, n_groups, **kwargs
 ):
-    """Add density-aligned scatter points."""
+    """Add density-aligned scatter points (centered for single group, right-aligned for multiple)."""
+    if n_groups == 1:
+        # For single group, center the scatter points
+        x_start = position
+    else:
+        # For multiple groups, position to the right of the box
+        x_start = position + box_width/2 + box_dots_spacing
+    
     x_coords, y_coords = _compute_scatter_coords(
-        position + box_width/2 + box_dots_spacing,
+        x_start,
         y_vals,
         dot_spacing,
         y_threshold,
