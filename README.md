@@ -125,9 +125,40 @@ raincloudplot(
 )
 ```
 
+### Per-point scatter colours
+
+`scatter_colors` colours each dot individually instead of one colour per group.
+Pass a column name or an array with one entry per data row:
+
+```python
+# Colour each dot by a numeric column through a colormap
+raincloudplot(
+    data=df, x='group', y='value',
+    scatter_colors='omega',     # numeric -> mapped through 'viridis'
+    scatter_cmap='magma',       # optional, default 'viridis'
+)
+
+# Or a list of literal colours, one per row
+raincloudplot(
+    data=df, x='group', y='value',
+    scatter_colors=['#ff0000' if g == 'A' else '#1f77b4' for g in df['group']],
+)
+
+# Or categorical values with an explicit palette
+raincloudplot(
+    data=df, x='group', y='value',
+    scatter_colors='condition',
+    scatter_palette={'control': '#888888', 'treatment': '#d62728'},
+)
+```
+
+Dense rows are thinned by the density estimate; `scatter_colors` stays aligned
+with the dots actually drawn, so each dot carries the colour of its source row.
+
 ## Features
 
 - 🎨 **Customizable colors** - Use any seaborn color palette or custom colors
+- 🌈 **Per-point scatter colors** - Colour each dot by a value, a colormap, or explicit colours
 - 📏 **Flexible sizing** - Control box width, violin width, and dot sizes
 - 🎯 **Density-aligned scatter** - Points are intelligently positioned based on data density
 - 🔧 **Component control** - Show/hide individual components (box, violin, scatter)
@@ -155,6 +186,10 @@ raincloudplot(
 | `box_kwargs` | dict | None | Additional boxplot arguments |
 | `violin_kwargs` | dict | None | Additional violin plot arguments |
 | `scatter_kwargs` | dict | None | Additional scatter plot arguments |
+| `scatter_colors` | str/array | None | Per-point scatter colours: a column name or an array of values/colours |
+| `scatter_cmap` | str/Colormap | None | Colormap for numeric `scatter_colors` (default 'viridis') |
+| `scatter_norm` | Normalize | None | Normalization for numeric `scatter_colors` |
+| `scatter_palette` | str/list/dict | None | Palette for categorical `scatter_colors` |
 | `show_box` | bool | True | Whether to show boxplot |
 | `show_violin` | bool | True | Whether to show violin plot |
 | `show_scatter` | bool | True | Whether to show scatter plot |

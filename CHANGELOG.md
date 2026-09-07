@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-09-07
+
+### Added
+- `scatter_colors` parameter to colour scatter dots individually
+  - accepts a column name in `data` or an array-like with one entry per row
+  - numeric values are mapped through a colormap (`scatter_cmap`, default 'viridis')
+  - valid matplotlib colours are used literally
+  - categorical values are mapped through `scatter_palette`
+- `scatter_cmap`, `scatter_norm`, and `scatter_palette` parameters to control the
+  per-point colour mapping
+- Density-aligned scatter coordinates now also return the source row index of each
+  drawn dot, so per-point colours stay aligned even though dense rows are thinned
+
 ## [0.4.0] - 2025-10-09
 
 ### Added

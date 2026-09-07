@@ -158,7 +158,7 @@ def test_compute_scatter_coords():
     from raincloudpy.raincloud import _compute_scatter_coords
     
     y_values = np.array([1, 1.1, 1.2, 2, 2.1, 3])
-    x_coords, y_coords = _compute_scatter_coords(
+    x_coords, y_coords, indices = _compute_scatter_coords(
         x_pos=0,
         y_values=y_values,
         dot_spacing=0.03,
@@ -168,4 +168,78 @@ def test_compute_scatter_coords():
     
     assert len(x_coords) > 0
     assert len(y_coords) > 0
-    assert len(x_coords) == len(y_coords)
+    assert len(x_coords) == len(y_coords) == len(indices)
+    assert indices.max() < len(y_values)
+
+
+def _scatter_collections(ax):
+    """Return the scatter PathCollections on an axis."""
+    from matplotlib.collections import PathCollection
+
+    return [c for c in ax.collections if isinstance(c, PathCollection)]
+
+
+def _unique_facecolors(ax):
+    colls = _scatter_collections(ax)
+    assert colls, 'no scatter collections found'
+    fcs = np.concatenate([np.asarray(c.get_facecolors()) for c in colls], axis=0)
+    return np.unique(fcs, axis=0)
+
+
+def test_scatter_colors_numeric_column_maps_to_multiple_colours(sample_data):
+    """Numeric scatter_colors should map through a colormap."""
+    fig, ax = plt.subplots()
+    data = sample_data.copy()
+    data['trait'] = np.linspace(0, 1, len(data))
+    raincloudplot(data=data, x='group', y='value', scatter_colors='trait', ax=ax)
+    assert len(_unique_facecolors(ax)) > 2
+    plt.close(fig)
+
+
+def test_scatter_colors_literal_color_array(sample_data):
+    """A list of literal colours should be used per-point."""
+    fig, ax = plt.subplots()
+    colors = ['red' if g == 'A' else 'blue' for g in sample_data['group']]
+    raincloudplot(data=sample_data, x='group', y='value', scatter_colors=colors, ax=ax)
+    assert len(_unique_facecolors(ax)) == 2
+    plt.close(fig)
+
+
+def test_scatter_colors_categorical_with_palette_dict(sample_data):
+    """Categorical values should map through a supplied palette dict."""
+    fig, ax = plt.subplots()
+    data = sample_data.copy()
+    data['cond'] = np.where(data['value'] > data['value'].median(), 'hi', 'lo')
+    raincloudplot(
+        data=data, x='group', y='value', scatter_colors='cond',
+        scatter_palette={'hi': '#ff0000', 'lo': '#0000ff'}, ax=ax
+    )
+    assert len(_unique_facecolors(ax)) == 2
+    plt.close(fig)
+
+
+def test_scatter_colors_wrong_length_raises(sample_data):
+    """A scatter_colors array of the wrong length should raise ValueError."""
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match='one entry per data row'):
+        raincloudplot(data=sample_data, x='group', y='value',
+                      scatter_colors=[0.1, 0.2], ax=ax)
+    plt.close(fig)
+
+
+def test_scatter_colors_unknown_column_raises(sample_data):
+    """An unknown scatter_colors column should raise ValueError."""
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match='not found in data'):
+        raincloudplot(data=sample_data, x='group', y='value',
+                      scatter_colors='does_not_exist', ax=ax)
+    plt.close(fig)
+
+
+def test_scatter_colors_ignored_when_scatter_hidden(sample_data):
+    """scatter_colors should be ignored (no error) when show_scatter=False."""
+    fig, ax = plt.subplots()
+    raincloudplot(data=sample_data, x='group', y='value',
+                  scatter_colors='value', show_scatter=False, ax=ax)
+    plt.close(fig)
+
