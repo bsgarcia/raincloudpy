@@ -152,8 +152,9 @@ raincloudplot(
 )
 ```
 
-Dense rows are thinned by the density estimate; `scatter_colors` stays aligned
-with the dots actually drawn, so each dot carries the colour of its source row.
+By default every data point is drawn (no dot is dropped). Set
+`show_all_dots=False` to thin dense rows by the density estimate; `scatter_colors`
+stays aligned with the dots actually drawn either way.
 
 ## Features
 
@@ -193,6 +194,7 @@ with the dots actually drawn, so each dot carries the colour of its source row.
 | `show_box` | bool | True | Whether to show boxplot |
 | `show_violin` | bool | True | Whether to show violin plot |
 | `show_scatter` | bool | True | Whether to show scatter plot |
+| `show_all_dots` | bool | True | Draw one dot per data point (no density thinning) |
 | `orient` | str | 'v' | Plot orientation ('v' or 'h') |
 
 ## Requirements

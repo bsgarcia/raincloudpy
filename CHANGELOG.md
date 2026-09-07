@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - categorical values are mapped through `scatter_palette`
 - `scatter_cmap`, `scatter_norm`, and `scatter_palette` parameters to control the
   per-point colour mapping
+- `show_all_dots` parameter (default True): draw every data point instead of
+  thinning dense rows by the KDE density estimate, which silently dropped dots
 - Density-aligned scatter coordinates now also return the source row index of each
   drawn dot, so per-point colours stay aligned even though dense rows are thinned
 
