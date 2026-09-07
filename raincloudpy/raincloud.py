@@ -35,7 +35,6 @@ def raincloudplot(
     show_box: bool = True,
     show_violin: bool = True,
     show_scatter: bool = True,
-    show_all_dots: bool = True,
     orient: str = 'v'
 ) -> plt.Axes:
     """
@@ -98,10 +97,6 @@ def raincloudplot(
         Whether to show the violin (KDE) component.
     show_scatter : bool, default=True
         Whether to show the scatter component.
-    show_all_dots : bool, default=True
-        Whether to draw one dot per data point (no density thinning). When
-        False, dense rows are thinned to match the KDE density, which silently
-        drops points; keep True to show every observation.
     orient : str, default='v'
         Orientation of the plot ('v' for vertical, 'h' for horizontal).
         
@@ -216,8 +211,7 @@ def raincloudplot(
             _add_density_scatter(
                 ax, i, y_vals, color, box_width, 
                 dot_spacing, box_dots_spacing, y_threshold, n_bins, n_groups,
-                point_colors=point_colors, show_all_dots=show_all_dots,
-                **scatter_defaults
+                point_colors=point_colors, **scatter_defaults
             )
     
     return ax
@@ -245,7 +239,7 @@ def _add_half_violin(ax, position, y_vals, color, violin_width, n_groups, **kwar
 def _add_density_scatter(
     ax, position, y_vals, color, box_width,
     dot_spacing, box_dots_spacing, y_threshold, n_bins, n_groups,
-    point_colors=None, show_all_dots=True, **kwargs
+    point_colors=None, **kwargs
 ):
     """Add density-aligned scatter points to the right of the box.
 
@@ -261,8 +255,7 @@ def _add_density_scatter(
         y_vals,
         dot_spacing,
         y_threshold,
-        n_bins,
-        show_all_dots=show_all_dots
+        n_bins
     )
     
     if point_colors is None:
@@ -276,18 +269,14 @@ def _compute_scatter_coords(
     y_values: np.ndarray,
     dot_spacing: float = 0.03,
     y_threshold: Optional[Union[float, str]] = "5%",
-    n_bins: int = 40,
-    show_all_dots: bool = True
+    n_bins: int = 40
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute coordinates for density-aligned scatter points.
 
     Returns ``(x_coords, y_coords, indices)`` where ``indices`` maps each drawn
-    dot back to its row in ``y_values``, so per-point colours stay aligned.
-
-    If ``show_all_dots`` is True every input point is drawn at its own y value
-    (density aligned, no thinning). If False, dense rows are thinned by the KDE
-    density estimate and each kept dot is drawn at its row's mean y value.
+    dot back to its row in ``y_values``, so per-point colours stay aligned even
+    though dense rows are thinned and reordered by the density estimate.
     """
     y_values = np.asarray(y_values, dtype=float)
     n = y_values.size
@@ -327,40 +316,30 @@ def _compute_scatter_coords(
             current_group = [j]
     groups.append(current_group)
     
-    # Estimate density only if thinning is requested
-    kde = None
-    max_density = 1.0
-    if not show_all_dots:
-        kde = gaussian_kde(y_values, bw_method='scott')
-        y_range = np.linspace(y_values.min(), y_values.max(), n_bins)
-        max_density = kde(y_range).max()
-        if max_density <= 0:
-            max_density = 1.0
+    # Estimate density
+    kde = gaussian_kde(y_values, bw_method='scott')
+    y_range = np.linspace(y_values.min(), y_values.max(), n_bins)
+    max_density = kde(y_range).max()
+    if max_density <= 0:
+        max_density = 1.0
     
     x_coords = []
     y_coords = []
     indices = []
     
     for group in groups:
-        if show_all_dots:
-            # Keep every point at its own y value, spread to the right.
-            for k, sorted_idx in enumerate(group):
-                x_coords.append(x_pos + k * dot_spacing)
-                y_coords.append(sorted_y[sorted_idx])
-                indices.append(order[sorted_idx])
-        else:
-            group_y = np.mean(sorted_y[group])
-            n_points = len(group)
-            
-            density = kde(group_y)[0]
-            n_dots_to_show = int(np.ceil(n_points * density / max_density))
-            n_dots_to_show = min(n_dots_to_show, n_points)
-            
-            # Keep the first n_dots_to_show points (in sorted order) of the group.
-            for k, sorted_idx in enumerate(group[:n_dots_to_show]):
-                x_coords.append(x_pos + k * dot_spacing)
-                y_coords.append(group_y)
-                indices.append(order[sorted_idx])
+        group_y = np.mean(sorted_y[group])
+        n_points = len(group)
+        
+        density = kde(group_y)[0]
+        n_dots_to_show = int(np.ceil(n_points * density / max_density))
+        n_dots_to_show = min(n_dots_to_show, n_points)
+        
+        # Keep the first n_dots_to_show points (in sorted order) of the group.
+        for k, sorted_idx in enumerate(group[:n_dots_to_show]):
+            x_coords.append(x_pos + k * dot_spacing)
+            y_coords.append(group_y)
+            indices.append(order[sorted_idx])
     
     return (
         np.array(x_coords),

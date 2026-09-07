@@ -170,8 +170,6 @@ def test_compute_scatter_coords():
     assert len(y_coords) > 0
     assert len(x_coords) == len(y_coords) == len(indices)
     assert indices.max() < len(y_values)
-    # default keeps every point
-    assert sorted(indices.tolist()) == list(range(len(y_values)))
 
 
 def _scatter_collections(ax):
@@ -186,10 +184,6 @@ def _unique_facecolors(ax):
     assert colls, 'no scatter collections found'
     fcs = np.concatenate([np.asarray(c.get_facecolors()) for c in colls], axis=0)
     return np.unique(fcs, axis=0)
-
-
-def _scatter_dot_count(ax):
-    return sum(len(np.asarray(c.get_offsets())) for c in _scatter_collections(ax))
 
 
 def test_scatter_colors_numeric_column_maps_to_multiple_colours(sample_data):
@@ -247,22 +241,5 @@ def test_scatter_colors_ignored_when_scatter_hidden(sample_data):
     fig, ax = plt.subplots()
     raincloudplot(data=sample_data, x='group', y='value',
                   scatter_colors='value', show_scatter=False, ax=ax)
-    plt.close(fig)
-
-
-def test_show_all_dots_draws_every_point(sample_data):
-    """By default every data point should be drawn (no density thinning)."""
-    fig, ax = plt.subplots()
-    raincloudplot(data=sample_data, x='group', y='value', ax=ax)
-    assert _scatter_dot_count(ax) == len(sample_data)
-    plt.close(fig)
-
-
-def test_show_all_dots_false_thins(sample_data):
-    """show_all_dots=False should never draw more dots than data points."""
-    fig, ax = plt.subplots()
-    raincloudplot(data=sample_data, x='group', y='value',
-                  show_all_dots=False, ax=ax)
-    assert _scatter_dot_count(ax) <= len(sample_data)
     plt.close(fig)
 
